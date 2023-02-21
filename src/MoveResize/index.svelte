@@ -119,11 +119,12 @@
       let subGridParent = subgrid.parentElement;
       let subGridParentRect = subGridParent.getBoundingClientRect();
 
-      const subGridOffset = {
-        x: subGridParentRect.x - subgrid.getBoundingClientRect().x,
-        y: subGridParentRect.y - subgrid.getBoundingClientRect().y,
-      };
       let prect = subgrid.getBoundingClientRect();
+
+      const subGridOffset = {
+        x: subGridParentRect.x - prect.x,
+        y: subGridParentRect.y - prect.y,
+      };
 
       rect = {
         top: irect.top - prect.top - subGridOffset.y,
