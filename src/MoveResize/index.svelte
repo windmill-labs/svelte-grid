@@ -54,6 +54,7 @@
     let shadowBound;
     if (subgrid) {
       let prect = subgrid.getBoundingClientRect();
+
       shadowBound = { x: irect.x - prect.left, y: irect.y - prect.top };
     } else {
       shadowBound = irect;
@@ -109,6 +110,30 @@
 
   const getScroller = (element) => (!element ? document.documentElement : element);
 
+  function computeRect(target) {
+    let gridItem = target.closest(".svlt-grid-item");
+    let subgrid = gridItem.closest(".subgrid");
+
+    let irect = gridItem.getBoundingClientRect();
+    if (subgrid) {
+      let subGridParent = subgrid.parentElement;
+      let subGridParentRect = subGridParent.getBoundingClientRect();
+
+      const subGridOffset = {
+        x: subGridParentRect.x - subgrid.getBoundingClientRect().x,
+        y: subGridParentRect.y - subgrid.getBoundingClientRect().y,
+      };
+      let prect = subgrid.getBoundingClientRect();
+
+      rect = {
+        top: irect.top - prect.top - subGridOffset.y,
+        left: irect.left - prect.left - subGridOffset.x,
+      };
+    } else {
+      rect = irect;
+    }
+  }
+
   const pointerdown = ({ clientX, clientY, target }) => {
     initX = clientX;
     initY = clientY;
@@ -122,15 +147,7 @@
 
     cordDiff = { x: 0, y: 0 };
 
-    let gridItem = target.closest(".svlt-grid-item");
-    let subgrid = gridItem.closest(".subgrid");
-    let irect = gridItem.getBoundingClientRect();
-    if (subgrid) {
-      let prect = subgrid.getBoundingClientRect();
-      rect = { top: irect.top - prect.top, left: irect.left - prect.left };
-    } else {
-      rect = irect;
-    }
+    computeRect(target);
 
     active = true;
     trans = false;
@@ -146,6 +163,7 @@
 
   const stopAutoscroll = () => {
     clearInterval(intervalId);
+    // @ts-ignore
     intervalId = false;
     sign = { x: 0, y: 0 };
     vel = { x: 0, y: 0 };
@@ -221,13 +239,15 @@
 
   const resizePointerDown = (e) => {
     e.stopPropagation();
-    const { pageX, pageY } = e;
+    const { pageX, pageY, target } = e;
 
     resizeInitPos = { x: pageX, y: pageY };
     initSize = { width, height };
 
     cordDiff = { x: 0, y: 0 };
-    rect = e.target.closest(".svlt-grid-item").getBoundingClientRect();
+
+    computeRect(target);
+
     newSize = { width, height };
 
     active = true;
