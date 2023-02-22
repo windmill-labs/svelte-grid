@@ -52,10 +52,21 @@
     let subgrid = shadowElement.closest(".subgrid");
     let irect = shadowElement.getBoundingClientRect();
     let shadowBound;
+
     if (subgrid) {
+      let subGridParent = subgrid.parentElement;
+      let subGridParentRect = subGridParent.getBoundingClientRect();
       let prect = subgrid.getBoundingClientRect();
 
-      shadowBound = { x: irect.x - prect.left, y: irect.y - prect.top };
+      const subGridOffset = {
+        x: subGridParentRect.x - prect.x,
+        y: subGridParentRect.y - prect.y,
+      };
+
+      shadowBound = {
+        x: irect.x - prect.left - subGridOffset.x,
+        y: irect.y - prect.top - subGridOffset.y,
+      };
     } else {
       shadowBound = irect;
     }
