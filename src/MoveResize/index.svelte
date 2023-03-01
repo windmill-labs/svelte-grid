@@ -28,6 +28,7 @@
   export let cols;
 
   export let nativeContainer;
+  export let onTop;
 
   let shadowElement;
   let shadow = {};
@@ -311,7 +312,7 @@
   on:pointerdown={item && item.customDragger ? null : draggable && pointerdown}
   class="svlt-grid-item"
   class:svlt-grid-active={active || (trans && rect)}
-  style="width: {active ? newSize.width : width}px; height:{active ? newSize.height : height}px; 
+  style="width: {active ? newSize.width : width}px; height:{active ? newSize.height : height}px; {onTop ? "z-index: 100;" : ""}
   {active
     ? `transform: translate(${cordDiff.x}px, ${cordDiff.y}px);top:${rect.top}px;left:${rect.left}px;`
     : trans

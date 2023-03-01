@@ -11,6 +11,7 @@
       <MoveResize
         on:repaint={handleRepaint}
         on:pointerup={pointerup}
+        onTop={item.id == onTopId}
         id={item.id}
         resizable={item[getComputedCols] && item[getComputedCols].resizable}
         draggable={item[getComputedCols] && item[getComputedCols].draggable}
@@ -57,6 +58,7 @@
   export let fastStart = false;
   export let throttleUpdate = 100;
   export let throttleResize = 100;
+  export let onTopId = undefined;
 
   export let scroller = undefined;
   export let sensor = 20;
