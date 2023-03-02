@@ -50,46 +50,48 @@
   let anima;
 
   const inActivate = () => {
-    let subgrid = shadowElement.closest(".subgrid");
-    let irect = shadowElement.getBoundingClientRect();
-    let shadowBound;
+    if (shadowElement) {
+      let subgrid = shadowElement.closest(".subgrid");
+      let irect = shadowElement.getBoundingClientRect();
+      let shadowBound;
 
-    if (subgrid) {
-      let subGridParent = subgrid.parentElement;
-      let subGridParentRect = subGridParent.getBoundingClientRect();
-      let prect = subgrid.getBoundingClientRect();
+      if (subgrid) {
+        let subGridParent = subgrid.parentElement;
+        let subGridParentRect = subGridParent.getBoundingClientRect();
+        let prect = subgrid.getBoundingClientRect();
 
-      const subGridOffset = {
-        x: subGridParentRect.x - prect.x,
-        y: subGridParentRect.y - prect.y,
-      };
+        const subGridOffset = {
+          x: subGridParentRect.x - prect.x,
+          y: subGridParentRect.y - prect.y,
+        };
 
-      shadowBound = {
-        x: irect.x - prect.left - subGridOffset.x,
-        y: irect.y - prect.top - subGridOffset.y,
-      };
-    } else {
-      shadowBound = irect;
+        shadowBound = {
+          x: irect.x - prect.left - subGridOffset.x,
+          y: irect.y - prect.top - subGridOffset.y,
+        };
+      } else {
+        shadowBound = irect;
+      }
+
+      const xdragBound = rect.left + cordDiff.x;
+      const ydragBound = rect.top + cordDiff.y;
+
+      cordDiff.x = shadow.x * xPerPx + gapX - (shadowBound.x - xdragBound);
+      cordDiff.y = shadow.y * yPerPx + gapY - (shadowBound.y - ydragBound);
+
+      active = false;
+      trans = true;
+
+      clearTimeout(anima);
+
+      anima = setTimeout(() => {
+        trans = false;
+      }, 100);
+
+      dispatch("pointerup", {
+        id,
+      });
     }
-
-    const xdragBound = rect.left + cordDiff.x;
-    const ydragBound = rect.top + cordDiff.y;
-
-    cordDiff.x = shadow.x * xPerPx + gapX - (shadowBound.x - xdragBound);
-    cordDiff.y = shadow.y * yPerPx + gapY - (shadowBound.y - ydragBound);
-
-    active = false;
-    trans = true;
-
-    clearTimeout(anima);
-
-    anima = setTimeout(() => {
-      trans = false;
-    }, 100);
-
-    dispatch("pointerup", {
-      id,
-    });
   };
 
   let repaint = (cb, isPointerUp) => {
@@ -307,28 +309,6 @@
   };
 </script>
 
-<div
-  draggable={false}
-  on:pointerdown={item && item.customDragger ? null : draggable && pointerdown}
-  class="svlt-grid-item"
-  class:svlt-grid-active={active || (trans && rect)}
-  style="width: {active ? newSize.width : width}px; height:{active ? newSize.height : height}px; {onTop ? "z-index: 100;" : ""}
-  {active
-    ? `transform: translate(${cordDiff.x}px, ${cordDiff.y}px);top:${rect.top}px;left:${rect.left}px;`
-    : trans
-    ? `transform: translate(${cordDiff.x}px, ${cordDiff.y}px); position:absolute; transition: width 0.2s, height 0.2s;`
-    : `transition: transform 0.2s, opacity 0.2s; transform: translate(${left}px, ${top}px); `} "
->
-  <slot movePointerDown={pointerdown} {resizePointerDown} />
-  {#if resizable && !item.customResizer}
-    <div class="svlt-grid-resizer" on:pointerdown={resizePointerDown} />
-  {/if}
-</div>
-
-{#if active || trans}
-  <div class="svlt-grid-shadow shadow-active" style="width: {shadow.w * xPerPx - gapX * 2}px; height: {shadow.h * yPerPx - gapY * 2}px; transform: translate({shadow.x * xPerPx + gapX}px, {shadow.y * yPerPx + gapY}px); " bind:this={shadowElement} />
-{/if}
-
 <style>
   .svlt-grid-item {
     touch-action: none;
@@ -387,3 +367,20 @@
     -webkit-backface-visibility: hidden;
   }
 </style>
+
+<div
+  draggable={false}
+  on:pointerdown={item && item.customDragger ? null : draggable && pointerdown}
+  class="svlt-grid-item"
+  class:svlt-grid-active={active || (trans && rect)}
+  style="width: {active ? newSize.width : width}px; height:{active ? newSize.height : height}px; {onTop ? 'z-index: 100;' : ''}
+  {active ? `transform: translate(${cordDiff.x}px, ${cordDiff.y}px);top:${rect.top}px;left:${rect.left}px;` : trans ? `transform: translate(${cordDiff.x}px, ${cordDiff.y}px); position:absolute; transition: width 0.2s, height 0.2s;` : `transition: transform 0.2s, opacity 0.2s; transform: translate(${left}px, ${top}px); `} ">
+  <slot movePointerDown={pointerdown} {resizePointerDown} />
+  {#if resizable && !item.customResizer}
+    <div class="svlt-grid-resizer" on:pointerdown={resizePointerDown} />
+  {/if}
+</div>
+
+{#if active || trans}
+  <div class="svlt-grid-shadow shadow-active" style="width: {shadow.w * xPerPx - gapX * 2}px; height: {shadow.h * yPerPx - gapY * 2}px; transform: translate({shadow.x * xPerPx + gapX}px, {shadow.y * yPerPx + gapY}px); " bind:this={shadowElement} />
+{/if}

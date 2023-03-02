@@ -1,45 +1,3 @@
-<style>
-  .svlt-grid-container {
-    position: relative;
-    width: 100%;
-  }
-</style>
-
-<div class="svlt-grid-container" style="height: {containerHeight}px" bind:this={container}>
-  {#if xPerPx || !fastStart}
-    {#each items as item, i (item.id)}
-      <MoveResize
-        on:repaint={handleRepaint}
-        on:pointerup={pointerup}
-        onTop={item.id == onTopId}
-        id={item.id}
-        resizable={item[getComputedCols] && item[getComputedCols].resizable}
-        draggable={item[getComputedCols] && item[getComputedCols].draggable}
-        {xPerPx}
-        {yPerPx}
-        width={Math.min(getComputedCols, item[getComputedCols] && item[getComputedCols].w) * xPerPx - gapX * 2}
-        height={(item[getComputedCols] && item[getComputedCols].h) * yPerPx - gapY * 2}
-        top={(item[getComputedCols] && item[getComputedCols].y) * yPerPx + gapY}
-        left={(item[getComputedCols] && item[getComputedCols].x) * xPerPx + gapX}
-        item={item[getComputedCols]}
-        min={item[getComputedCols] && item[getComputedCols].min}
-        max={item[getComputedCols] && item[getComputedCols].max}
-        cols={getComputedCols}
-        {gapX}
-        {gapY}
-        {sensor}
-        container={scroller}
-        nativeContainer={container}
-        let:resizePointerDown
-        let:movePointerDown>
-        {#if item[getComputedCols]}
-          <slot {movePointerDown} {resizePointerDown} dataItem={item} item={item[getComputedCols]} index={i} />
-        {/if}
-      </MoveResize>
-    {/each}
-  {/if}
-</div>
-
 <script>
   import { getContainerHeight } from "./utils/container.js";
   import { moveItemsAroundItem, moveItem, getItemById, specifyUndefinedColumns, findFreeSpaceForItem } from "./utils/item.js";
@@ -62,6 +20,8 @@
 
   export let scroller = undefined;
   export let sensor = 20;
+
+  export let parentWidth = undefined;
 
   let getComputedCols;
 
@@ -102,7 +62,7 @@
 
         if (width === containerWidth) return;
 
-        getComputedCols = getColumn(width, cols);
+        getComputedCols = getColumn(parentWidth ?? width, cols);
 
         xPerPx = width / getComputedCols;
 
@@ -119,7 +79,7 @@
         }
 
         containerWidth = width;
-      })
+      });
     });
 
     sizeObserver.observe(container);
@@ -165,3 +125,45 @@
     }
   };
 </script>
+
+<style>
+  .svlt-grid-container {
+    position: relative;
+    width: 100%;
+  }
+</style>
+
+<div class="svlt-grid-container" style="height: {containerHeight}px" bind:this={container}>
+  {#if xPerPx || !fastStart}
+    {#each items as item, i (item.id)}
+      <MoveResize
+        on:repaint={handleRepaint}
+        on:pointerup={pointerup}
+        onTop={item.id == onTopId}
+        id={item.id}
+        resizable={item[getComputedCols] && item[getComputedCols].resizable}
+        draggable={item[getComputedCols] && item[getComputedCols].draggable}
+        {xPerPx}
+        {yPerPx}
+        width={Math.min(getComputedCols, item[getComputedCols] && item[getComputedCols].w) * xPerPx - gapX * 2}
+        height={(item[getComputedCols] && item[getComputedCols].h) * yPerPx - gapY * 2}
+        top={(item[getComputedCols] && item[getComputedCols].y) * yPerPx + gapY}
+        left={(item[getComputedCols] && item[getComputedCols].x) * xPerPx + gapX}
+        item={item[getComputedCols]}
+        min={item[getComputedCols] && item[getComputedCols].min}
+        max={item[getComputedCols] && item[getComputedCols].max}
+        cols={getComputedCols}
+        {gapX}
+        {gapY}
+        {sensor}
+        container={scroller}
+        nativeContainer={container}
+        let:resizePointerDown
+        let:movePointerDown>
+        {#if item[getComputedCols]}
+          <slot {movePointerDown} {resizePointerDown} dataItem={item} item={item[getComputedCols]} index={i} />
+        {/if}
+      </MoveResize>
+    {/each}
+  {/if}
+</div>

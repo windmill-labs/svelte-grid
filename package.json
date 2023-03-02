@@ -1,6 +1,6 @@
 {
   "name": "@windmill-labs/svelte-grid",
-  "version": "5.1.4",
+  "version": "5.1.5",
   "description": "A responsive, draggable and resizable grid layout, for Svelte.",
   "svelte": "src/index.svelte",
   "module": "build/index.mjs",
